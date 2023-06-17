@@ -1,0 +1,11 @@
+.vscode
+.idea
+/obj/*
+*.map
+*.sym
+*.ihx
+*.noi
+*.cdb
+unused
+*.bat
+*.sav
