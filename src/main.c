@@ -20,12 +20,15 @@ bool ctx1_active = false;
 
 void main(void) {
     printf("coroutine test\n");
+    // start the first one
     ctx0_active = coro_start(&ctx0, test_coro1, BANK(test_coro1));
-    ctx1_active = coro_start(&ctx1, test_coro2, BANK(test_coro2));
+    // initialize without starting the second one
+    ctx1_active = coro_init(&ctx1, test_coro2, BANK(test_coro2));
     do {
+        printf("loop\n");
         ctx0_active = (ctx0_active) ? coro_continue(&ctx0) : false;
         ctx1_active = (ctx1_active) ? coro_continue(&ctx1) : false;
     } while (ctx0_active || ctx1_active);
     printf("finished!\n");
-    printf("done!\n");
+    printf("done!");
 }

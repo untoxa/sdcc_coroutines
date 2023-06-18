@@ -16,9 +16,15 @@ typedef void (* coro_t)(void) BANKED;
 
 extern coro_context_t * coro_current_context;
 
+// suspend coroutine execution and pass into main
 bool coro_yield(void);
 
+// initialize coroutine, but don't start
+bool coro_init(coro_context_t * context, coro_t coro, uint8_t coro_bank);
+
+// initialize and start coroutine
 bool coro_start(coro_context_t * context, coro_t coro, uint8_t coro_bank);
+// continue the coroutine execution
 bool coro_continue(coro_context_t * context);
 
 #endif

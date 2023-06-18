@@ -94,6 +94,18 @@ bool coro_finalize(void) NONBANKED NAKED {
     __endasm;
 }
 
+bool coro_init(coro_context_t * context, coro_t coro, uint8_t coro_bank) NONBANKED {
+    uint16_t * stack = context->stack + ((MAX_CORO_STACK_SIZE >> 1) - 1);
+    *stack-- = (uint16_t *)coro_finalize;
+    *stack-- = (uint16_t *)coro;
+#if defined(__TARGET_sms) || defined(__TARGET_gg)
+    *stack-- = 0; // dummy IX value
+#endif
+    *stack = coro_bank << 8;
+    context->SP = stack;
+    return true;
+}
+
 bool coro_start(coro_context_t * context, coro_t coro, uint8_t coro_bank) NONBANKED NAKED {
     context; coro; coro_bank;
     __asm
