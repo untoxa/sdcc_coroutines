@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "coroutines.h"
+#include "coroutines_runner.h"
 
 void test_coro1(void) BANKED;
 BANKREF_EXTERN(test_coro1)
@@ -20,15 +21,16 @@ bool ctx1_active = false;
 
 void main(void) {
     printf("coroutine test\n");
-    // start the first one
-    ctx0_active = coro_start(&ctx0, test_coro1, BANK(test_coro1));
-    // initialize without starting the second one
-    ctx1_active = coro_init(&ctx1, test_coro2, BANK(test_coro2));
-    do {
-        printf("loop\n");
-        ctx0_active = (ctx0_active) ? coro_continue(&ctx0) : false;
-        ctx1_active = (ctx1_active) ? coro_continue(&ctx1) : false;
-    } while (ctx0_active || ctx1_active);
+    // initialize coroutine manager
+    coro_runner_init();
+
+    // start two coroutines
+    coro_runner_start(test_coro1, BANK(test_coro1), NULL, NULL);
+    coro_runner_start(test_coro2, BANK(test_coro2), NULL, NULL);
+
+    // process coroutines until all finished
+    while (coro_runner_process()) printf("loop\n");
+
     printf("finished!\n");
     printf("done!");
 }

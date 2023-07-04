@@ -14,6 +14,8 @@ typedef struct coro_context_t {
 } coro_context_t;
 typedef void (* coro_t)(void) BANKED;
 
+#define CORO_STACK_OFFSET 4
+
 extern coro_context_t * coro_current_context;
 
 // suspend coroutine execution and pass into main

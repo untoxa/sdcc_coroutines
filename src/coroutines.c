@@ -131,7 +131,7 @@ bool coro_start(coro_context_t * context, coro_t coro, uint8_t coro_bank) NONBAN
         inc hl
         ld (hl), d
 
-        ld hl, #(MAX_CORO_STACK_SIZE + 4)
+        ld hl, #(MAX_CORO_STACK_SIZE + CORO_STACK_OFFSET)
         add hl, de
         ld sp, hl
         ld hl, #_coro_finalize
@@ -160,7 +160,7 @@ bool coro_start(coro_context_t * context, coro_t coro, uint8_t coro_bank) NONBAN
 
         ld (_coro_current_context), hl
 
-        ld bc, #(MAX_CORO_STACK_SIZE + 4)
+        ld bc, #(MAX_CORO_STACK_SIZE + CORO_STACK_OFFSET)
         add hl, bc
         ld sp, hl
         ld hl, #_coro_finalize
