@@ -4,9 +4,9 @@
 
 #include "coroutines.h"
 
-void test_coro2(void) BANKED {
+void test_coro2(void * user_data) BANKED {
     uint8_t i = 0;
-    printf("coro2 started...\n");
+    printf("run coro2(%x)\n", (uint16_t)user_data);
     while (true) {
         printf("coro2: %hd\n", i++);
         if (i == 3) return;

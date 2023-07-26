@@ -7,10 +7,10 @@
 #include "coroutines.h"
 #include "coroutines_runner.h"
 
-void test_coro1(void) BANKED;
+void test_coro1(void * user_data) BANKED;
 BANKREF_EXTERN(test_coro1)
 
-void test_coro2(void) BANKED;
+void test_coro2(void * user_data) BANKED;
 BANKREF_EXTERN(test_coro2)
 
 coro_context_t ctx0;
@@ -25,12 +25,12 @@ void main(void) {
     coro_runner_init();
 
     // start two coroutines
-    coro_runner_start(test_coro1, BANK(test_coro1), NULL, NULL);
-    coro_runner_start(test_coro2, BANK(test_coro2), NULL, NULL);
+    coro_runner_start(test_coro1, BANK(test_coro1), NULL, (void *)0xCAFE);
+    coro_runner_start(test_coro2, BANK(test_coro2), NULL, (void *)0xBEEF);
 
     // process coroutines until all finished
     while (coro_runner_process()) printf("loop\n");
+    printf("all finished!\n");
 
-    printf("finished!\n");
     printf("done!");
 }

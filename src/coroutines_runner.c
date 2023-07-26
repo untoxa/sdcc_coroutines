@@ -25,13 +25,11 @@ void coro_runner_init(void) {
 }
 
 uint8_t coro_runner_start(coro_t coro, uint8_t coro_bank, uint8_t * handle, void * user_data) {
-    if ((coro_free_ctx) && (coro_init(&coro_free_ctx->coro_context, coro, coro_bank))) {
+    if ((coro_free_ctx) && (coro_init(&coro_free_ctx->coro_context, coro, coro_bank, user_data))) {
         coro_runner_context_t * tmp = coro_free_ctx;
         coro_free_ctx = tmp->next;
         tmp->next = coro_active_ctx;
         coro_active_ctx = tmp;
-
-        tmp->coro_context.user_data = user_data;
 
         return (tmp->handle = handle) ? *handle = tmp->coro_id : tmp->coro_id;
     }

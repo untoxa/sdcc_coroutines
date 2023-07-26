@@ -10,10 +10,9 @@
 
 typedef struct coro_context_t {
     uint16_t * SP;
-    void * user_data;
     uint16_t stack[MAX_CORO_STACK_SIZE >> 1];
 } coro_context_t;
-typedef void (* coro_t)(void) BANKED;
+typedef void (* coro_t)(void * user_data) BANKED;
 
 #define CORO_STACK_OFFSET 4
 
@@ -23,11 +22,15 @@ extern coro_context_t * coro_current_context;
 bool coro_yield(void);
 
 // initialize coroutine, but don't start
-bool coro_init(coro_context_t * context, coro_t coro, uint8_t coro_bank);
+bool coro_init(coro_context_t * context, coro_t coro, uint8_t coro_bank, void * user_data);
 
-// initialize and start coroutine
-bool coro_start(coro_context_t * context, coro_t coro, uint8_t coro_bank);
 // continue the coroutine execution
 bool coro_continue(coro_context_t * context);
+
+// initialize and start coroutine
+inline bool coro_start(coro_context_t * context, coro_t coro, uint8_t coro_bank, void * user_data) {
+    coro_init(context, coro, coro_bank, user_data);
+    return coro_continue(context);
+}
 
 #endif
