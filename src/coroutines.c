@@ -125,22 +125,27 @@ bool coro_finalize(void) NONBANKED NAKED {
     __endasm;
 }
 
-bool coro_init(coro_context_t * context, coro_t coro, uint8_t coro_bank, void * user_data) NONBANKED {
+void coro_init(coro_context_t * context, coro_t coro, uint8_t coro_bank, void * user_data) NONBANKED {
     uint16_t * stack = context->stack + ((MAX_CORO_STACK_SIZE >> 1) - 1);
-    *stack-- = (uint16_t)user_data;
-    *stack-- = 0;
-    *stack-- = 0;
-#if defined(__TARGET_sms) || defined(__TARGET_gg)
-    stack = (uint16_t *)((uint8_t *)stack + 1); // match Z80 banked call convention
+    *stack = (uint16_t)user_data;
+#if defined(__TARGET_gb) || defined(__TARGET_ap) || defined(__TARGET_megaduck)
+    stack = (uint16_t *)((uint8_t *)stack - 6); // match SM83 banked call convention
+#elif defined(__TARGET_sms) || defined(__TARGET_gg)
+    stack = (uint16_t *)((uint8_t *)stack - 5); // match Z80 banked call convention
+#else
+    #error Unrecognized port
 #endif
     *stack-- = (uint16_t *)coro_finalize;
-    *stack-- = (uint16_t *)coro;
-#if defined(__TARGET_sms) || defined(__TARGET_gg)
-    *stack-- = 0;       // dummy IX value
+    *stack = (uint16_t *)coro;
+#if defined(__TARGET_gb) || defined(__TARGET_ap) || defined(__TARGET_megaduck)
+    *--stack = coro_bank << 8;                  // coroutine bank
+#elif defined(__TARGET_sms) || defined(__TARGET_gg)
+    stack -= 2;                                 // dummy IX value
+    *stack = coro_bank << 8;                    // coroutine bank
+#else
+    #error Unrecognized port
 #endif
-    *stack = coro_bank << 8;
     context->SP = stack;
-    return true;
 }
 
 bool coro_continue(coro_context_t * context) NONBANKED NAKED {

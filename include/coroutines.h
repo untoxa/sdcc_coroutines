@@ -22,7 +22,7 @@ extern coro_context_t * coro_current_context;
 bool coro_yield(void);
 
 // initialize coroutine, but don't start
-bool coro_init(coro_context_t * context, coro_t coro, uint8_t coro_bank, void * user_data);
+void coro_init(coro_context_t * context, coro_t coro, uint8_t coro_bank, void * user_data);
 
 // continue the coroutine execution
 bool coro_continue(coro_context_t * context);

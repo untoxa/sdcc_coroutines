@@ -42,7 +42,7 @@ CFLAGS = -Iinclude -Iinclude/$(PORT) -Iinclude/$(PLAT) -I$(RESDIR) -Iobj/$(PLAT)
 #CFLAGS      += -DBRANCH=$(BRANCH) -DVERSION=$(VERSION) -DCOMMIT=$(COMMIT)
 
 # Optimization
-#CFLAGS      += -Wf'--max-allocs-per-node 50000'
+CFLAGS      += -Wf'--max-allocs-per-node 50000'
 
 # You can set the name of the ROM file here
 PROJECTNAME = coroutines
