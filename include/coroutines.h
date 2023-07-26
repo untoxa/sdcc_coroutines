@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #define MAX_CORO_STACK_SIZE 128
+#define ALLOW_RUN_CORO_AS_FUNCTION
 
 typedef struct coro_context_t {
     uint16_t * SP;

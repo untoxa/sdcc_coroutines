@@ -5,7 +5,7 @@
 #include "coroutines.h"
 
 uint16_t * coro_main_context;
-coro_context_t * coro_current_context;
+coro_context_t * coro_current_context = NULL;
 
 bool coro_yield(void) NONBANKED NAKED {
     __asm
@@ -20,6 +20,10 @@ bool coro_yield(void) NONBANKED NAKED {
         ld a, (hl+)
         ld h, (hl)
         ld l, a
+#if defined(ALLOW_RUN_CORO_AS_FUNCTION)
+        or h
+        jr z, 1$
+#endif
         ld a, e
         ld (hl+), a
         ld (hl), d
@@ -30,6 +34,7 @@ bool coro_yield(void) NONBANKED NAKED {
         ld l, a
         ld sp, hl
 
+1$:
         pop af
         ldh (__current_bank), a
         ld (_rROMB0), a
@@ -46,12 +51,18 @@ bool coro_yield(void) NONBANKED NAKED {
         ex de, hl
 
         ld hl, (_coro_current_context)
+#if defined(ALLOW_RUN_CORO_AS_FUNCTION)
+        ld a, h
+        or l
+        jr z, 1$
+#endif
         ld (hl), e
         inc hl
         ld (hl), d
 
         ld sp, (_coro_main_context)
 
+1$:
         pop af
         ld (_MAP_FRAME1), a
         pop ix

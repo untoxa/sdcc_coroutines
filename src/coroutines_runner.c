@@ -38,35 +38,38 @@ uint8_t coro_runner_start(coro_t coro, uint8_t coro_bank, uint8_t * handle, void
     return (CORO_ERROR | CORO_TERMINATED);
 }
 
+static coro_runner_context_t * runner_curr, * runner_prev;
+
 void coro_runner_kill(uint8_t coro_id) {
-    static coro_runner_context_t * curr, * prev;
-    curr = coro_active_ctx, prev = NULL;
-    while (curr) {
-        if (curr->coro_id == coro_id) {
-            if (curr->handle) *curr->handle |= CORO_TERMINATED;
-            if (prev) prev->next = curr->next;
-            if (coro_active_ctx == curr) coro_active_ctx = curr->next;
-            curr->next = coro_free_ctx, coro_free_ctx = curr;
+    runner_curr = coro_active_ctx, runner_prev = NULL;
+    while (runner_curr) {
+        if (runner_curr->coro_id == coro_id) {
+            if (runner_curr->handle) *runner_curr->handle |= CORO_TERMINATED;
+            if (runner_prev) runner_prev->next = runner_curr->next;
+            if (coro_active_ctx == runner_curr) coro_active_ctx = runner_curr->next;
+            runner_curr->next = coro_free_ctx, coro_free_ctx = runner_curr;
             break;
         } else {
-            prev = curr, curr = curr->next;
+            runner_prev = runner_curr, runner_curr = runner_curr->next;
         }
     }
 }
 
 bool coro_runner_process(void) {
-    static coro_runner_context_t * curr, * prev;
-    curr = coro_active_ctx, prev = NULL;
-    while (curr) {
-        if (!coro_continue(&curr->coro_context)) {
-            if (curr->handle) *curr->handle |= CORO_TERMINATED;
-            if (prev) prev->next = curr->next;
-            if (coro_active_ctx == curr) coro_active_ctx = curr->next;
-            curr->next = coro_free_ctx, coro_free_ctx = curr;
-            if (prev) curr = prev->next; else curr = coro_active_ctx;
+    runner_curr = coro_active_ctx, runner_prev = NULL;
+    while (runner_curr) {
+        if (!coro_continue(&runner_curr->coro_context)) {
+            if (runner_curr->handle) *runner_curr->handle |= CORO_TERMINATED;
+            if (runner_prev) runner_prev->next = runner_curr->next;
+            if (coro_active_ctx == runner_curr) coro_active_ctx = runner_curr->next;
+            runner_curr->next = coro_free_ctx, coro_free_ctx = runner_curr;
+            if (runner_prev) runner_curr = runner_prev->next; else runner_curr = coro_active_ctx;
         } else {
-            prev = curr, curr = curr->next;
+            runner_prev = runner_curr, runner_curr = runner_curr->next;
         }
     }
+#ifdef ALLOW_RUN_CORO_AS_FUNCTION
+    coro_current_context = NULL;
+#endif
     return (coro_active_ctx != NULL);
 }
