@@ -68,8 +68,5 @@ bool coro_runner_process(void) {
             runner_prev = runner_curr, runner_curr = runner_curr->next;
         }
     }
-#ifdef ALLOW_RUN_CORO_AS_FUNCTION
-    coro_current_context = NULL;
-#endif
     return (coro_active_ctx != NULL);
 }
