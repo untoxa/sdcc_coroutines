@@ -8,4 +8,6 @@ This is sort of cooperative multitasking which only save/restore minimal state t
 is required by the SDCC ABI. Very lightweight, switching take all in all about 56 
 cycles for the Game Boy.
 
+![game gear example](/screenshot.png)
+
 Also, see https://github.com/untoxa/gameboy_preemptive_multitasking
