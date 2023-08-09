@@ -13,12 +13,6 @@ BANKREF_EXTERN(test_coro1)
 void test_coro2(void * user_data) BANKED;
 BANKREF_EXTERN(test_coro2)
 
-coro_context_t ctx0;
-bool ctx0_active = false;
-
-coro_context_t ctx1;
-bool ctx1_active = false;
-
 void main(void) {
     printf("coroutine test\n");
     // initialize coroutine manager
