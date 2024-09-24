@@ -9,7 +9,7 @@ coro_context_t * coro_current_context = NULL;
 
 bool coro_yield(void) NONBANKED NAKED {
     __asm
-#if defined(__TARGET_gb) || defined(__TARGET_ap) || defined(__TARGET_megaduck)
+#if defined(__TARGET_gb) || defined(__TARGET_ap) || defined(__TARGET_duck)
         ldhl sp, #-2
         ld d, h
         ld e, l
@@ -88,7 +88,7 @@ bool coro_yield(void) NONBANKED NAKED {
 
 bool coro_finalize(void) NONBANKED NAKED {
     __asm
-#if defined(__TARGET_gb) || defined(__TARGET_ap) || defined(__TARGET_megaduck)
+#if defined(__TARGET_gb) || defined(__TARGET_ap) || defined(__TARGET_duck)
         ld hl, #_coro_main_context
         ld a, (hl+)
         ld h, (hl)
@@ -128,7 +128,7 @@ bool coro_finalize(void) NONBANKED NAKED {
 void coro_init(coro_context_t * context, coro_t coro, uint8_t coro_bank, void * user_data) NONBANKED {
     uint16_t * stack = context->stack + ((MAX_CORO_STACK_SIZE >> 1) - 1);
     *stack = (uint16_t)user_data;
-#if defined(__TARGET_gb) || defined(__TARGET_ap) || defined(__TARGET_megaduck)
+#if defined(__TARGET_gb) || defined(__TARGET_ap) || defined(__TARGET_duck)
     stack = (uint16_t *)((uint8_t *)stack - 6); // match SM83 banked call convention
 #elif defined(__TARGET_sms) || defined(__TARGET_gg)
     stack = (uint16_t *)((uint8_t *)stack - 5); // match Z80 banked call convention
@@ -137,7 +137,7 @@ void coro_init(coro_context_t * context, coro_t coro, uint8_t coro_bank, void * 
 #endif
     *stack-- = (uint16_t *)coro_finalize;
     *stack = (uint16_t *)coro;
-#if defined(__TARGET_gb) || defined(__TARGET_ap) || defined(__TARGET_megaduck)
+#if defined(__TARGET_gb) || defined(__TARGET_ap) || defined(__TARGET_duck)
     *--stack = coro_bank << 8;                  // coroutine bank
 #elif defined(__TARGET_sms) || defined(__TARGET_gg)
     stack -= 2;                                 // dummy IX value
@@ -151,7 +151,7 @@ void coro_init(coro_context_t * context, coro_t coro, uint8_t coro_bank, void * 
 bool coro_continue(coro_context_t * context) NONBANKED NAKED {
     context;
     __asm
-#if defined(__TARGET_gb) || defined(__TARGET_ap) || defined(__TARGET_megaduck)
+#if defined(__TARGET_gb) || defined(__TARGET_ap) || defined(__TARGET_duck)
         ldh a, (__current_bank)
         push af
         ld (_coro_main_context), sp
